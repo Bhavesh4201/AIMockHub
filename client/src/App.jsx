@@ -4,7 +4,7 @@ import ResumeUpload from "./componets/ResumeUpload";
  function App() {
 return(
   <>
-  ,<ResumeUpload />
+  <ResumeUpload />
   </>
   )
 }
