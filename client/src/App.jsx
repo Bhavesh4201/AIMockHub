@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import ResumeUpload from "./componets/ResumeUpload";
+import ResumeUpload from "./components/ResumeUpload";
+
 
  function App() {
 return(
