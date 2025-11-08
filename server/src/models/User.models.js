@@ -4,24 +4,24 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     username: {
-      type: string,
+      type: String,
       required: true,
       lowercase: true,
     },
     email: {
-      type: string,
+      type: String,
       require: true,
       unique: true,
       lowercase: true,
     },
     password: {
-      type: string,
+      type: String,
       require: true,
       lowercase: true,
     },
     resume :{
-      url :{type : string},
-      skills : [string],
+      url :{type : String},
+      skills : [String],
       uploadedAt : {type : Date}
     }
   },
