@@ -3,13 +3,11 @@ import aiService from "../services/aiService.js";
 
 export const generateQuestions = async (req, res) => {
   try {
-    const { skills } = req.body;
-
-    const questions = await aiService.generateQuestions(skills);
+    const questions = await aiService.generateQuestions();
 
     return res.json({
       success: true,
-      questions
+      data : questions
     });
 
   } catch (error) {
