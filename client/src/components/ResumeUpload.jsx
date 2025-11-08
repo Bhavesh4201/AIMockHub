@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
+import useSkill from "../context/InterviewContext";
 
 const ResumeUpload = () => {
   const [selectFile, setSelectFile] = useState(null);
   const [massage, setMassage] = useState("");
+  const {setSkills} = useSkill()
 
   const handleFile = (e) => {
     setSelectFile(e.target.files[0]);
@@ -22,8 +24,7 @@ const ResumeUpload = () => {
 
     try {
       const backend_url = "http://localhost:5000"
-
-
+      
       const res = await axios.post(`${backend_url}/api/resume/key`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -31,6 +32,8 @@ const ResumeUpload = () => {
       setSelectFile("")
       console.log("server respons", res.data.massage);
       console.log("server respons", res.data.success);
+      console.log("server respons", res.data.data.data);
+      setSkills(res.data.data.data)
     } catch (error) {
       if (error.response) {
         console.log("Server responded with :", error.response.data.massage);

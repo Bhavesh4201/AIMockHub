@@ -1,0 +1,117 @@
+@startuml
+' ==================================================================
+' AI Mock Test System — End-to-End Workflow (Node.js + FastAPI + MongoDB)
+' ==================================================================
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+' -------------------- Main Actors --------------------
+actor "User" as user
+
+' -------------------- Frontend --------------------
+package "Frontend (React / Next.js)" as FE {
+  component "Resume Upload UI" as ResumeUI
+  component "Test Interface" as TestUI
+  component "Video Chat / Emotion Capture" as VideoUI
+}
+
+' -------------------- Backend --------------------
+package "Backend (Node.js / Express)" as BE {
+  component "API Gateway / Routes" as APIGW
+  component "Auth Service" as Auth
+  component "Test Management" as TestMgr
+  component "Realtime WS / Socket.io" as WS
+  component "File Handler (Uploads)" as FileHandler
+}
+
+' -------------------- AI Layer --------------------
+package "AI Services (FastAPI / Python)" as AI {
+  component "Resume Analyzer" as ResumeAI
+  component "Skill Extractor" as SkillAI
+  component "Question Generator (Gemini API)" as QGen
+  component "Answer Evaluator (NLP)" as EvalAI
+  component "Emotion Analysis (DeepFace / MediaPipe)" as EmotionAI
+}
+
+' -------------------- Data Layer --------------------
+package "Database Layer" as DB {
+  database "MongoDB\n(users, resumes, questions, results, emotion)" as Mongo
+  database "Redis (cache, sessions)" as Redis
+  component "S3 / MinIO\n(file storage)" as S3
+}
+
+' -------------------- Message / Infra --------------------
+package "Infrastructure" as Infra {
+  component "Message Queue\n(RabbitMQ / Kafka)" as MQ
+  component "Monitoring / Logging\n(Prometheus + ELK)" as Logs
+}
+
+' -------------------- Workflow --------------------
+
+' --- User flow ---
+user --> ResumeUI : Upload Resume (PDF)
+ResumeUI --> APIGW : POST /api/upload
+APIGW --> FileHandler : Save file
+FileHandler --> S3 : Store resume PDF
+FileHandler --> ResumeAI : Trigger resume analysis
+
+ResumeAI --> SkillAI : Extract keywords / skills
+SkillAI --> MQ : Publish skill-event
+MQ --> QGen : Generate questions (Gemini API)
+QGen --> Mongo : Store question set
+QGen --> TestMgr : Notify test ready
+
+user --> TestUI : Start Mock Test
+TestUI --> WS : Open WebSocket connection
+WS --> TestMgr : Fetch test questions
+TestMgr --> Mongo : Load questions
+TestMgr --> TestUI : Send questions to user
+
+' --- During test (video + emotion) ---
+user --> VideoUI : Enable camera/mic
+VideoUI --> EmotionAI : Stream sampled frames (WebRTC)
+EmotionAI --> EmotionAI : Detect emotion (face, tone, stress)
+EmotionAI --> WS : Send emotion metadata
+WS --> Mongo : Store emotion log
+
+' --- Answer submission ---
+TestUI --> APIGW : POST /api/submitAnswers
+APIGW --> EvalAI : Send answers for evaluation
+EvalAI --> Mongo : Save scores + feedback
+
+' --- Result generation ---
+EvalAI --> TestMgr : Notify completion
+TestMgr --> Mongo : Update test status
+TestMgr --> WS : Emit result event
+WS --> TestUI : Display score + emotion analysis
+
+' --- Monitoring / Analytics ---
+BE --> Logs : Log user/session info
+AI --> Logs : Log inference metrics
+Mongo --> Logs : Query insights for analytics
+
+' -------------------- Notes --------------------
+note right of EmotionAI
+  Emotion data format example:
+  {
+    user_id: 123,
+    happy: 0.72,
+    stressed: 0.18,
+    neutral: 0.1,
+    timestamp: "2025-11-04T12:30:00Z"
+  }
+end note
+
+note bottom of Mongo
+  MongoDB Collections:
+  - users
+  - resumes
+  - questions
+  - test_sessions
+  - results
+  - emotion_logs
+end note
+
+@enduml

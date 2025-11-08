@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const AI_BASE_URL = " http://0.0.0.0:8000"
+const AI_BASE_URL = "http://0.0.0.0:8000"
 
 const aiService ={
     analyzResume: async (filePath)=>{
@@ -11,4 +11,4 @@ const aiService ={
 }
 
 
-export default aiService
+export default aiService 

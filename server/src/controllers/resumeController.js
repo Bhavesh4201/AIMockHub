@@ -7,7 +7,7 @@ async function resumeKeyExtract(req, res) {
     const filePath = path.resolve(req.file.path);
 
     const analysis = await aiService.analyzResume(filePath);
-      console.log(analysis);
+      // console.log(analysis);
       
     res.json({
       success: true,
@@ -15,7 +15,6 @@ async function resumeKeyExtract(req, res) {
       data: analysis,
     });
   } catch (error) {
-    // console.log(error);
     res.status(500).json({ success: false, message: "Error analyzing resume" });
   }
 }
