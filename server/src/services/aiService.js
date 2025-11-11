@@ -12,8 +12,6 @@ const aiService = {
     });
     return res.data;
   },
-
-
   generateQuestions: async () =>{
     const res = await axios.post(`${Question_gen}/api/question_generator`);
     return res.data
