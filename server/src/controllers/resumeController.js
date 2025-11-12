@@ -1,3 +1,4 @@
+import { User } from "../models/User.models.js";
 import aiService from "../services/aiService.js";
 import path from 'path'
 
@@ -5,6 +6,9 @@ async function resumeKeyExtract(req, res) {
   try {
 
     const filePath = path.resolve(req.file.path);
+    const user = User.create({
+      resume : filePath
+    })
 
     const analysis = await aiService.analyzResume(filePath);
       // console.log(analysis);

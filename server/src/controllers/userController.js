@@ -1,4 +1,7 @@
-import { User } from "../models/User.models.js";
+  import { User } from "../models/User.models.js";
+import {config} from "../config/env.js"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 
 export const userRegister = async (req, res) => {
   try {
@@ -8,8 +11,32 @@ export const userRegister = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ massage: "User already exists" });
     } else {
-      const user = await User.create({ username, email, password });
-      res.status(201).json({ massage: " User register successfully", user });
+
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) {
+          return res.status(500).json({ massage: "Error generating salt" });
+        }
+        bcrypt.hash(password, salt, async (err, hash) => {
+          if (err) {
+            return res.status(500).json({ massage: "Error hashing password" });
+          }
+          const user = await User.create({
+            username,
+            email,
+            password: hash
+          });
+
+          res.status(201).json({ massage: " User register successfully", user });
+          console.log(config.jwt_secret);
+          
+          // const token = jwt.sign({ email }, config.jwt_secret);
+          // res.cookie("token", token)
+        })
+
+      })
+
+
+
     }
   } catch (error) {
     res.status(500).json({ massage: error._massage });
