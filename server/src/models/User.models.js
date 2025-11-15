@@ -1,5 +1,19 @@
 import mongoose from "mongoose";
 
+
+const resumeSchema = new mongoose.Schema({
+  url: String,
+  filename: String,
+  fileType: String,
+  size: Number,
+  uploadedAt: Date,
+  analysis: {
+    tech_skills: [String],
+    soft_skills: [String],
+    projects: [String]
+  }
+}, { _id: false });
+
 // makeing a schema
 const userSchema = new mongoose.Schema(
   {
@@ -19,11 +33,8 @@ const userSchema = new mongoose.Schema(
       require: true,
       lowercase: true,
     },
-    resume :{
-      url :{type : String},
-      skills : [String],
-      uploadedAt : {type : Date}
-    }
+    skills: { type: [String], default: [] },
+    resume: { type: resumeSchema, default: null }
   },
   { timeseries: true }
 );

@@ -27,14 +27,12 @@ export const userRegister = async (req, res) => {
           });
 
           res.status(201).json({ massage: " User register successfully", user });
-          console.log(config.jwt_secret);
           
           // const token = jwt.sign({ email }, config.jwt_secret);
           // res.cookie("token", token)
         })
 
       })
-
 
 
     }
