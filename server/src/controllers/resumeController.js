@@ -29,6 +29,8 @@ async function resumeKeyExtract(req, res) {
       analysis: { tech_skills: [], soft_skills: [], projects: [] }
     };
     await user.save();
+
+
     /*** call to python microservice ****/
     const analysis = await aiService.analyzResume(filePath);
     // console.log(analysis.data);
