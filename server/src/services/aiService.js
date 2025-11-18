@@ -12,10 +12,12 @@ const aiService = {
     });
     return res.data;
   },
-  generateQuestions: async () =>{
-    const res = await axios.post(`${Question_gen}/api/question_generator`);
+  generateQuestions: async (skills) =>{
+    const res = await axios.post(`${Question_gen}/api/question_generator`,{
+      skills : skills
+    });
     return res.data
   }
 };
 
-export default aiService;
+export default aiService; 
