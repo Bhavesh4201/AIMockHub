@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       require: true,
-      lowercase: true,
     },
     skills: { type: [String], default: [] },
     resume: { type: resumeSchema, default: null }
