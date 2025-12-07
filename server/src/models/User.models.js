@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
     skills: { type: [String], default: [] },
     resume: { type: resumeSchema, default: null }
   },
-  { timeseries: true }
+  { timestamps: true }
 );
 
 // makeing a model and exporting it

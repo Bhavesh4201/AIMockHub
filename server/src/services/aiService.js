@@ -1,22 +1,62 @@
 import axios from "axios";
+import { config } from "../config/env.js";
 
-const ResumeAnalyzer = "http://0.0.0.0:8000";
-const Question_gen = "http://0.0.0.0:8001"
+const ResumeAnalyzer = config.RESUME_ANALYZER_URL;
+const Question_gen = config.QUESTION_GEN_URL;
+const feedback_gen = config.FEEDBACK_GEN_URL;
 
 
 const aiService = {
 
   analyzResume: async (filePath) => {
-    const res = await axios.post(`${ResumeAnalyzer}/api/analyze_resume`, {
-      file_path: filePath,
-    });
-    return res.data;
+    try {
+      const res = await axios.post(`${ResumeAnalyzer}/api/analyze_resume`, {
+        file_path: filePath,
+      }, {
+        timeout: 30000 // 30 second timeout
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error analyzing resume:", error.message);
+      throw new Error(`Resume analysis failed: ${error.message}`);
+    }
   },
-  generateQuestions: async (skills) =>{
-    const res = await axios.post(`${Question_gen}/api/question_generator`,{
-      skills : skills
-    });
-    return res.data
+  
+  generateQuestions: async (skills) => {
+    try {
+      const res = await axios.post(`${Question_gen}/api/question_generator`, {
+        skills: skills
+      }, {
+        timeout: 30000
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error generating questions:", error.message);
+      throw new Error(`Question generation failed: ${error.message}`);
+    }
+  },
+  
+  feedbackGenerater: async (text_ans, emotion_data) => {
+    try {
+      const payload = {
+        text: text_ans,
+        emotion_data: emotion_data || null
+      };
+      console.log("AI Service - Sending to Python microservice:", {
+        url: `${feedback_gen}/api/feedbacke_generator`,
+        payload: {
+          text: text_ans ? text_ans.substring(0, 50) + "..." : "EMPTY",
+          emotion_data: emotion_data ? "present" : "null"
+        }
+      });
+      const res = await axios.post(`${feedback_gen}/api/feedbacke_generator`, payload, {
+        timeout: 30000
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error generating feedback:", error.response?.status, error.response?.data, error.message);
+      throw new Error(`Feedback generation failed: ${error.message}`);
+    }
   }
 };
 

@@ -3,6 +3,6 @@ import { generateQuestions } from "../controllers/questionController.js";
 
 const router = express.Router();
 
-router.post("/generate", generateQuestions);
+router.post("/:id/generater", generateQuestions);
 
 export default router;

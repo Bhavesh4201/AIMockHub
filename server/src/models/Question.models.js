@@ -1,24 +1,19 @@
 import mongoose from "mongoose";
 
-const questionSchema = new mongoose.Schema(
-  {
-    skill: {
-      type: String,
-      require: true,
-    },
-    question_text: {
-      type: String,
-      require: true,
-    },
-    answer: {
-      type: String,
-      require: true,
-    },
-    difficulty: {
-      type: String,
-    },
-  },
-  { timestamps: true }
-);
+const questionSchema = new mongoose.Schema({
+  skill: { type: String, required: true },
 
-export const Question = mongoose.mongo("Question" , questionSchema)
+  question_text: { type: String, required: true },
+
+  answer: { type: String }, 
+
+  difficulty: {
+    type: String,
+    enum: ["easy", "medium", "hard"],
+    default: "medium"
+  },
+
+  createdAt: { type: Date, default: Date.now }
+});
+
+export const Question = mongoose.model("Question", questionSchema);
