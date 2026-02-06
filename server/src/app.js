@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookie_parser from "cookie-parser"
-
+import { config } from "./config/env.js"
 import resumeRoutes from "./routes/resumeRoutes.js";
 import questionRoutes from "./routes/questionRoutes.js";
 import userRouters from "./routes/userRouters.js";
@@ -11,9 +11,13 @@ import interviewRoutes from "./routes/interviewRoutes.js";
 
 const app = express();
 
+dotenv.config({
+  path: "./.env",
+});
+
 // CORS configuration to allow credentials
 app.use(cors({
-  origin: process.env.CLIENT_URL, // Vite default port
+  origin: config.CLIENT_URL, // Vite default port
   credentials: true, // Allow cookies
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
