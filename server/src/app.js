@@ -1,4 +1,5 @@
 import express from "express";
+import dotenv from "dotenv";
 import cors from "cors";
 import cookie_parser from "cookie-parser"
 import { config } from "./config/env.js"
@@ -31,10 +32,10 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/user", userRouters);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/interview", interviewRoutes);
-app.get("/api/helth", (req, res) => {
-  res.json({ status: "ok " });
-})
-// app.use("/api/emotion", emotionRoutes);
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 
 
 export default app;
