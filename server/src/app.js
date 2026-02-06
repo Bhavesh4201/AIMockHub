@@ -31,6 +31,9 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/user", userRouters);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/interview", interviewRoutes);
+app.use("api/helth", (req, res) => {
+  res.send("ok")
+})
 // app.use("/api/emotion", emotionRoutes);
 
 
