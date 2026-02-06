@@ -31,7 +31,7 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/user", userRouters);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/interview", interviewRoutes);
-app.get("api/helth", (req, res) => {
+app.get("/api/helth", (req, res) => {
   res.json({ status: "ok " });
 })
 // app.use("/api/emotion", emotionRoutes);
