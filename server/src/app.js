@@ -13,7 +13,7 @@ const app = express();
 
 // CORS configuration to allow credentials
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173", // Vite default port
+  origin: process.env.CLIENT_URL, // Vite default port
   credentials: true, // Allow cookies
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]

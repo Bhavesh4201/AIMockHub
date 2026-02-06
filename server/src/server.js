@@ -7,7 +7,7 @@ dotenv.config({
     path: "./.env",
 });
 
-const PORT = config.PORT || 3000;
+const PORT = config.PORT;
 
 // Connect to database before starting server
 connectDB().then(() => {
