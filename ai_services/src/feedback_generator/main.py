@@ -43,11 +43,10 @@ async def generator_feedback(request: TextRequest):
                 "success": False
             }
         
-        # Create prompt for feedback generation with emotion data
+       
         prompt = create_feedback_prompt(request.text, request.emotion_data)
         
         if not api_key:
-            # Return mock feedback if API key is not configured
             return {
                 "success": True,
                 "data": {
@@ -64,7 +63,7 @@ async def generator_feedback(request: TextRequest):
                 }
             }
         
-        # Generate feedback using Gemini
+      
         model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt)
         
@@ -76,14 +75,14 @@ async def generator_feedback(request: TextRequest):
         
         raw = response.text.strip()
         
-        # Remove markdown fences if present
+       
         raw = re.sub(r"```json|```", "", raw).strip()
         
-        # Try to parse JSON response
+       
         try:
             feedback_data = json.loads(raw)
         except json.JSONDecodeError:
-            # If not JSON, treat as plain text feedback
+           
             feedback_data = {
                 "feedback": raw,
                 "strengths": [],
@@ -91,7 +90,6 @@ async def generator_feedback(request: TextRequest):
                 "score": None
             }
         
-        # Ensure proper structure
         result = {
             "success": True,
             "data": {

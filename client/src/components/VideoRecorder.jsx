@@ -274,7 +274,6 @@ export default function VideoRecorder({ onEmotionDataUpdate, questionId }) {
   useEffect(() => {
     // Reset buffers when question changes
     if (questionId) {
-      console.log("[VideoRecorder] Question changed, resetting emotion tracking for question:", questionId);
       questionEmotionBufferRef.current = [];
       questionBehaviorBufferRef.current = [];
       questionStartTimeRef.current = Date.now();
@@ -417,7 +416,6 @@ export default function VideoRecorder({ onEmotionDataUpdate, questionId }) {
               lastEmotionUpdateRef.current = now;
               const emotionSummary = getQuestionEmotionSummary();
               if (emotionSummary) {
-                console.log("[VideoRecorder] Calling onEmotionDataUpdate with summary:", emotionSummary);
                 onEmotionDataUpdate(emotionSummary);
               }
             }
@@ -467,7 +465,6 @@ export default function VideoRecorder({ onEmotionDataUpdate, questionId }) {
   // -----------------------------
   const getQuestionEmotionSummary = useCallback(() => {
     if (questionBehaviorBufferRef.current.length === 0) {
-      console.log("[VideoRecorder] getQuestionEmotionSummary: No behavior data yet");
       return null;
     }
     
@@ -502,34 +499,27 @@ export default function VideoRecorder({ onEmotionDataUpdate, questionId }) {
       behaviorHistory: behaviors.slice() // Copy array
     };
     
-    console.log("[VideoRecorder] getQuestionEmotionSummary returning:", summary);
     return summary;
   }, []);
   
   // Expose method to get current question emotion data
   useEffect(() => {
     if (questionId) {
-      // Always expose the function when we have a questionId
       window.getQuestionEmotionData = getQuestionEmotionSummary;
-      console.log("[VideoRecorder] Exposed getQuestionEmotionData for question:", questionId);
     } else {
-      // Clear it when no question
       window.getQuestionEmotionData = null;
     }
-  }, [questionId]);
+  }, [questionId, getQuestionEmotionSummary]);
 
   // -----------------------------
   // STOP & SUMMARIZE
   // -----------------------------
   const endInterview = () => {
-    console.log("---- REPORT ----");
-    
     // 1. Emotion Summary
     const emoCounts = emotionBuffer.reduce((acc, curr) => {
       acc[curr] = (acc[curr] || 0) + 1;
       return acc;
     }, {});
-    console.log("Emotions:", emoCounts);
 
     // 2. Behavioral Averages
     const avgConfidence = behaviorBuffer.length > 0
@@ -544,15 +534,11 @@ export default function VideoRecorder({ onEmotionDataUpdate, questionId }) {
     const totalAudio = audioBuffer.length || 1; 
     const vocalConfidence = Math.round(100 - (quietCount / totalAudio) * 100);
     
-    console.log(`Avg Visual Confidence: ${avgConfidence}%`);
-    console.log(`Avg Stress Level: ${avgStress}%`);
-    console.log(`Vocal Confidence: ${vocalConfidence}%`);
-    
     const topEmotion = Object.keys(emoCounts).length > 0 
       ? Object.keys(emoCounts).sort((a,b) => emoCounts[b] - emoCounts[a])[0] 
       : "None detected";
 
-    // Return summary data instead of alert
+    // Return summary data
     const summary = {
       predominantEmotion: topEmotion,
       avgConfidence,
@@ -560,8 +546,6 @@ export default function VideoRecorder({ onEmotionDataUpdate, questionId }) {
       vocalConfidence,
       emotionCounts: emoCounts
     };
-
-    console.log("Interview Summary:", summary);
     
     // Cleanup buffers for next run
     emotionBuffer = [];

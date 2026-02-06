@@ -27,6 +27,8 @@ def create_prompt(skills: List[str]) -> str:
 
     prompt = f"""
 You are an expert technical interviewer.
+fist  3 question are Theory base and 2 technical ,
+
 
 Generate exactly 5 interview questions based on these skills:
 {skills_str}
@@ -58,7 +60,7 @@ FORMAT (use exactly this structure):
 
 CONTENT RULES:
 - Generate exactly 5 questions total.
-- Mix of difficulties: 1 Easy, 2-3 Medium, 1-2 Hard
+- Mix of difficulties: 2 Easy,2 Medium, 1Hard
 - Each question must be scenario-based and practical.
 - "skill_area" must match one of the provided skills.
 - Questions should test real-world problem-solving abilities.
@@ -85,39 +87,37 @@ async def generat_question(request: SkillsRequest):
                 "success": False
             }
         
-        # Use AI if API key is available, otherwise use mock data
+      
         if api_key:
             prompt = create_prompt(request.skills)
             
-            # model = genai.GenerativeModel("gemini-2.5-flash")
-            # response = model.generate_content(prompt)
+            model = genai.GenerativeModel("gemini-2.5-flash")
+            response = model.generate_content(prompt)
             
-            # if not response or not response.text:
-            #     # Fallback to mock data if API fails
-            #     print("Empty response from LLM, using mock data")
-            #     return get_mock_questions()
+            if not response or not response.text:
+                return get_mock_questions()
             
-            # raw = response.text.strip()
+            raw = response.text.strip()
             
-            # # Remove markdown fences
-            # raw = re.sub(r"|```", "", raw).strip()
+          
+            raw = re.sub(r"|```", "", raw).strip()
             
-            # Try directly parsing first
+           
             try:
-                # result = json.loads(raw)
-                # Ensure it's a list
+                result = json.loads(raw)
+            
                 if isinstance(result, list):
                     return result
                 elif isinstance(result, dict) and "questions" in result:
                     return result["questions"]
                 else:
-                    # Wrap single object in list
+                  
                     return [result]
             except json.JSONDecodeError:
-                # Fallback to manual extraction
+            
                 pass
             
-            # Extract all JSON objects
+     
             objects = re.findall(r"\{[\s\S]*?\}", raw)
             
             if not objects:
@@ -134,13 +134,13 @@ async def generat_question(request: SkillsRequest):
             
             return result
         else:
-            # Use mock data if API key is not configured
+      
             print("API key not configured, using mock data")
             return get_mock_questions()
         
     except Exception as e:
         print(f"Error generating questions: {e}")
-        # Return mock data as fallback
+       
         return get_mock_questions()
 
 def get_mock_questions():
@@ -178,13 +178,6 @@ def get_mock_questions():
         }
     ]
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "question_generator"
-    }
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)### Fixed `ai_services/src/question_generator/requirements.txt`:
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)

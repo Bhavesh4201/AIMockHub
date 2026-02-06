@@ -27,8 +27,6 @@ const InterviewUI = () => {
   // Handle emotion data updates from VideoRecorder
   const handleEmotionDataUpdate = (emotionData) => {
     if (emotionData) {
-      console.log("[InterviewUI] handleEmotionDataUpdate -> received emotion data:", emotionData);
-      console.log("[InterviewUI] Setting emotion data for question:", currentQuestion._id || currentQuestion.id);
       setCurrentQuestionEmotionData(emotionData);
     }
   };
@@ -39,14 +37,6 @@ const InterviewUI = () => {
     }
   }, [user, interviewStarted]);
 
-  // Debug logging - moved to top to fix hooks order
-  useEffect(() => {
-    const currentQuestion = questions[currentQuestionIndex];
-    if (currentQuestion) {
-      console.log("Current question:", currentQuestion);
-      console.log("Question text:", currentQuestion.question_text || currentQuestion.question);
-    }
-  }, [questions, currentQuestionIndex]);
 
   const initializeInterview = async () => {
     if (!user?.id) {
@@ -68,7 +58,6 @@ const InterviewUI = () => {
       const questionsRes = await questionAPI.generate(user.id);
       if (questionsRes.data.success) {
         const questionsData = questionsRes.data.data || [];
-        console.log("Questions received:", questionsData);
         setQuestions(questionsData);
         setInterviewStarted(true);
       } else {
@@ -91,10 +80,7 @@ const InterviewUI = () => {
         emotionData: currentQuestionEmotionData || {},
         behaviorScore: (currentQuestionEmotionData && currentQuestionEmotionData.avgConfidence) ? currentQuestionEmotionData.avgConfidence : 0,
       };
-      console.log("[InterviewUI] Submitting answer payload:", JSON.stringify(payload, null, 2));
-      console.log("[InterviewUI] Sending to endpoint: /api/interview/" + sessionId + "/answer");
-      const response = await interviewAPI.submitAnswer(sessionId, payload);
-      console.log("[InterviewUI] Response from server:", response.data);
+      await interviewAPI.submitAnswer(sessionId, payload);
     } catch (err) {
       console.error("[InterviewUI] Error submitting answer:", err);
     }
@@ -179,8 +165,6 @@ const InterviewUI = () => {
     // Capture final emotion data before submitting
     const finalEmotionData = currentQuestionEmotionData || 
       (window.getQuestionEmotionData ? window.getQuestionEmotionData() : null);
-    
-    console.log("[InterviewUI] Capturing emotion data for answer submission:", finalEmotionData);
     
     // Update state with final emotion data if we got it
     if (finalEmotionData && !currentQuestionEmotionData) {

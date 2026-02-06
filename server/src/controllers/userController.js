@@ -61,7 +61,7 @@ export const userRegister = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message || "Internal server error" });
-    console.log(error);
+    console.error("User registration error:", error);
   }
 };
 
@@ -105,7 +105,7 @@ export const userLogin = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("error:", error);
+    console.error("User login error:", error);
     res.status(500).json({
       message: error.message || "Internal Server Error",
     });
@@ -134,7 +134,7 @@ export const verifyToken = async (req, res) => {
       userId: user._id
     });
   } catch (error) {
-    console.log("error:", error);
+    console.error("Token verification error:", error);
     res.status(500).json({
       message: error.message || "Internal Server Error",
     });

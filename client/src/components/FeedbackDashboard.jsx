@@ -105,10 +105,10 @@ const FeedbackDashboard = ({ sessionId, questionId, userAnswer, savedFeedback, e
       // Convert saved feedback format to display format
       const displayFeedback = {
         feedback: savedFeedback.feedback_text || savedFeedback.feedback_data?.feedback,
-        strengths: savedFeedback.strengths || savedFeedback.feedback_data?.strengths || [],
-        improvements: savedFeedback.improvements || savedFeedback.feedback_data?.improvements || [],
-        emotion_improvements: savedFeedback.emotion_improvements || savedFeedback.feedback_data?.emotion_improvements || [],
-        score: savedFeedback.score || savedFeedback.feedback_data?.score
+        strengths: savedFeedback.strengths || [],
+        improvements: savedFeedback.improvements || [],
+        emotion_improvements: savedFeedback.emotion_improvements || [],
+        score: savedFeedback.score
       };
       setFeedback(displayFeedback);
     }
@@ -134,24 +134,12 @@ const FeedbackDashboard = ({ sessionId, questionId, userAnswer, savedFeedback, e
       
       if (!finalEmotionData && window.getQuestionEmotionData) {
         finalEmotionData = window.getQuestionEmotionData();
-        console.log("[FeedbackDashboard] Got emotion data from window.getQuestionEmotionData():", finalEmotionData);
       }
       
       // Fallback: Generate percentage-based emotion data from answer text
       if (!finalEmotionData) {
-        console.log("[FeedbackDashboard] No video emotion data - generating percentage-based emotion data from answer text");
         finalEmotionData = generateEmotionDataFromText(userAnswer);
-        console.log("[FeedbackDashboard] Generated emotion data:", finalEmotionData);
       }
-      
-      // Log emotion data status
-      console.log("[FeedbackDashboard] Emotion data status:", {
-        fromProps: emotionData,
-        fromWindow: window.getQuestionEmotionData ? window.getQuestionEmotionData() : null,
-        generated: !emotionData && !window.getQuestionEmotionData,
-        hasData: !!finalEmotionData,
-        finalData: finalEmotionData
-      });
       
       const res = await feedbackAPI.generate(
         userAnswer, 
@@ -160,11 +148,9 @@ const FeedbackDashboard = ({ sessionId, questionId, userAnswer, savedFeedback, e
         user.id,
         finalEmotionData
       );
-      console.log("Feedback API response:", res.data);
       
       if (res.data.success) {
         const feedbackData = res.data.data;
-        console.log("Setting feedback data:", feedbackData);
         
         // Format feedback for display
         const displayFeedback = {

@@ -1,15 +1,6 @@
 def create_feedback_prompt(answer_text: str, emotion_data: dict = None) -> str:
-    """
-    Create a feedback prompt for interview answer analysis.
     
-    Args:
-        answer_text: The user's interview answer text
-        emotion_data: Optional emotion/behavioral data from video analysis
-        
-    Returns:
-        Formatted prompt string for LLM
-    """
-    # Build comprehensive emotion context if available
+  
     emotion_context = ""
     emotion_analysis_instructions = ""
     if emotion_data:

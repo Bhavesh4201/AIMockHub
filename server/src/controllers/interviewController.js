@@ -36,11 +36,6 @@ export const interviewAnswerSession = async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { questionId, userAnswer, emotionData, behaviorScore } = req.body;
-    
-    console.log("[interviewController] Received answer submission for session:", sessionId);
-    console.log("[interviewController] Emotion data received:", JSON.stringify(emotionData, null, 2));
-    console.log("[interviewController] Behavior score:", behaviorScore);
-    console.log("[interviewController] Full payload:", JSON.stringify(req.body, null, 2));
 
     if (!questionId || !userAnswer) {
       return res.status(400).json({ 
@@ -59,21 +54,28 @@ export const interviewAnswerSession = async (req, res) => {
       return res.status(404).json({ message: "Question not found" });
     }
 
+    // Store only essential emotion metrics, not full history arrays
+    const emotionSummary = emotionData ? {
+      predominantEmotion: emotionData.predominantEmotion || "neutral",
+      avgConfidence: emotionData.avgConfidence || 0,
+      avgStress: emotionData.avgStress || 0,
+      avgEngagement: emotionData.avgEngagement || 0,
+      source: emotionData.source || "video_tracking"
+    } : null;
+
     const answerData = {
       questionId: question._id,
       question_text: question.question_text,
       userAnswer,
       correctAnswer: question.answer || "",
       difficulty: question.difficulty,
-      emotionData: emotionData || {},
+      emotionData: emotionSummary, // Store only summary, not full arrays
       behaviorScore: behaviorScore || 0,
       timestamp: new Date()
     };
 
     session.questions.push(answerData);
     await session.save();
-    
-    console.log("[interviewController] Answer saved successfully. Emotion data stored:", answerData.emotionData);
 
     return res.status(200).json({
       success: true,
@@ -164,6 +166,7 @@ export const getUserSessions = async (req, res) => {
             feedback_text: savedFeedback.feedback_text,
             strengths: savedFeedback.strengths,
             improvements: savedFeedback.improvements,
+            emotion_improvements: savedFeedback.emotion_improvements || [],
             score: savedFeedback.score,
             feedback_data: savedFeedback.feedback_data
           } : null

@@ -37,9 +37,14 @@ const feedbackSchema = new mongoose.Schema({
     emotion: {
         type : [String], 
         default : []
-    } ,
+    },
+    emotion_improvements: {
+        type: [String],
+        default: []
+    },
     feedback_data: {
-        type: Object  // Store the full feedback object as JSON
+        type: Object,  // Store only essential data, not full duplicate
+        default: null
     }
 }, {timestamps : true})
 

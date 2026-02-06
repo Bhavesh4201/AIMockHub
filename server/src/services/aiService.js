@@ -42,13 +42,6 @@ const aiService = {
         text: text_ans,
         emotion_data: emotion_data || null
       };
-      console.log("AI Service - Sending to Python microservice:", {
-        url: `${feedback_gen}/api/feedbacke_generator`,
-        payload: {
-          text: text_ans ? text_ans.substring(0, 50) + "..." : "EMPTY",
-          emotion_data: emotion_data ? "present" : "null"
-        }
-      });
       const res = await axios.post(`${feedback_gen}/api/feedbacke_generator`, payload, {
         timeout: 30000
       });

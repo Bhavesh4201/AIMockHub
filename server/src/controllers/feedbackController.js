@@ -6,8 +6,6 @@ export const feedbackGenerater = async(req, res) => {
   try {
     const { text_ans, session_id, question_id, user_id, emotion_data } = req.body;
     
-    console.log("Feedback Controller - Request body:", { text_ans, session_id, question_id, user_id, emotion_data });
-    
     if (!text_ans) {
       return res.status(400).json({ 
         success: false,
@@ -23,9 +21,7 @@ export const feedbackGenerater = async(req, res) => {
     }
 
     // Generate feedback using AI service
-    console.log("Sending to AI service - text_ans:", text_ans.substring(0, 50) + "...");
     const aiFeedback = await aiService.feedbackGenerater(text_ans, emotion_data);
-    console.log("AI service response:", aiFeedback);
     
     // Check if AI service returned an error
     if (!aiFeedback.success) {
@@ -49,6 +45,15 @@ export const feedbackGenerater = async(req, res) => {
           user_id
         });
 
+        // Store only essential emotion metrics, not full history arrays
+        const emotionSummary = emotion_data ? {
+          predominantEmotion: emotion_data.predominantEmotion || "neutral",
+          avgConfidence: emotion_data.avgConfidence || 0,
+          avgStress: emotion_data.avgStress || 0,
+          avgEngagement: emotion_data.avgEngagement || 0,
+          source: emotion_data.source || "video_tracking"
+        } : null;
+
         const feedbackToSave = {
           user_id,
           session_id,
@@ -57,9 +62,14 @@ export const feedbackGenerater = async(req, res) => {
           feedback_text: typeof feedbackData === 'string' ? feedbackData : feedbackData.feedback || '',
           strengths: Array.isArray(feedbackData.strengths) ? feedbackData.strengths : (feedbackData.strengths ? [feedbackData.strengths] : []),
           improvements: Array.isArray(feedbackData.improvements) ? feedbackData.improvements : (feedbackData.improvements ? [feedbackData.improvements] : []),
+          emotion_improvements: Array.isArray(feedbackData.emotion_improvements) ? feedbackData.emotion_improvements : [],
           score: feedbackData.score,
-          emotion: emotion_data ? (Array.isArray(emotion_data.emotionHistory) ? emotion_data.emotionHistory : [emotion_data.predominantEmotion]) : [],
-          feedback_data: feedbackData
+          emotion: emotionSummary ? [emotionSummary.predominantEmotion] : [],
+          // Store only essential feedback data, not full duplicate object
+          feedback_data: {
+            emotion_summary: emotionSummary,
+            emotion_improvements: feedbackData.emotion_improvements || []
+          }
         };
 
         if (existingFeedback) {
