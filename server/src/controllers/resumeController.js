@@ -37,20 +37,10 @@ async function resumeKeyExtract(req, res) {
       });
     }
 
-    // Store resume file in MongoDB
-    user.resume = {
-      filename: file.originalname,
-      fileType: file.mimetype,
-      size: file.size,
-      uploadedAt: new Date(),
-      fileData: file.buffer, // Store binary file data in MongoDB
-      analysis: { tech_skills: [], soft_skills: [], projects: [] }
-    };
-    await user.save();
-
     // Create temporary file for AI service analysis
+    // Use async file writing to avoid blocking the event loop
     tempFilePath = path.join(os.tmpdir(), `resume-${userId}-${Date.now()}.pdf`);
-    fs.writeFileSync(tempFilePath, file.buffer);
+    await fs.promises.writeFile(tempFilePath, file.buffer);
 
     /*** call to python microservice ****/
     const analysis = await aiService.analyzResume(tempFilePath);
@@ -61,13 +51,24 @@ async function resumeKeyExtract(req, res) {
     const softSkills = data.soft_skills || [];
     const projects = data.projects || [];
 
-    user.resume.analysis = {
-      tech_skills: techSkills,
-      soft_skills: softSkills,
-      projects: projects
+    // Update user object with file data AND analysis results
+    user.resume = {
+      filename: file.originalname,
+      fileType: file.mimetype,
+      size: file.size,
+      uploadedAt: new Date(),
+      fileData: file.buffer, // Store binary file data in MongoDB
+      analysis: {
+        tech_skills: techSkills,
+        soft_skills: softSkills,
+        projects: projects
+      }
     };
+
     const normalizedSkills = techSkills.map(s => s.toLowerCase());
     user.skills = Array.from(new Set([...(user.skills || []), ...normalizedSkills]));
+    
+    // Save once at the end
     await user.save();
 
     return res.status(200).json({
@@ -88,13 +89,11 @@ async function resumeKeyExtract(req, res) {
       error: error.message
     });
   } finally {
-    // Clean up temporary file
-    if (tempFilePath && fs.existsSync(tempFilePath)) {
-      try {
-        fs.unlinkSync(tempFilePath);
-      } catch (unlinkError) {
-        console.error("Error deleting temporary file:", unlinkError);
-      }
+    // Clean up temporary file asynchronously
+    if (tempFilePath) {
+      fs.promises.unlink(tempFilePath).catch(err => 
+        console.error("Error deleting temporary file:", err)
+      );
     }
   }
 }
