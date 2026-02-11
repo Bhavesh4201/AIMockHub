@@ -1,35 +1,11 @@
 import express from "express";
 import multer from 'multer';
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 import { auth } from "../middleware/authMiddleware.js";
 const router = express.Router();
 import resumeKeyExtract from '../controllers/resumeController.js';
 
-// Get current directory (ES modules)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure multer with file validation
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename: timestamp-random-originalname
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, `${name}-${uniqueSuffix}${ext}`);
-  }
-});
+// Configure multer with memory storage for MongoDB
+const storage = multer.memoryStorage();
 
 // File filter - only allow PDF files
 const fileFilter = (req, file, cb) => {

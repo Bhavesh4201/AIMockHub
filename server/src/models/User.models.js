@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 
 const resumeSchema = new mongoose.Schema({
-  url: String,
   filename: String,
   fileType: String,
   size: Number,
   uploadedAt: Date,
+  fileData: Buffer, // Store binary PDF data in MongoDB
   analysis: {
     tech_skills: [String],
     soft_skills: [String],

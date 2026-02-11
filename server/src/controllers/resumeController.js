@@ -1,11 +1,12 @@
 import path from "path";
 import fs from "fs";
+import os from "os";
 import { User } from "../models/User.models.js";
 import aiService from "../services/aiService.js";
 
 async function resumeKeyExtract(req, res) {
-  let uploadedFilePath = null;
-  
+  let tempFilePath = null;
+
   try {
     // Verify user is authenticated and matches the userId in params
     const authenticatedUserId = req.user?.id;
@@ -20,47 +21,40 @@ async function resumeKeyExtract(req, res) {
     }
 
     const file = req.file;
-    
+
     if (!file) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "No file uploaded" 
+        message: "No file uploaded"
       });
     }
-
-    uploadedFilePath = file.path; // Store for cleanup if needed
 
     const user = await User.findById(userId);
     if (!user) {
-      // Clean up uploaded file if user not found
-      if (fs.existsSync(uploadedFilePath)) {
-        fs.unlinkSync(uploadedFilePath);
-      }
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "User not found" 
+        message: "User not found"
       });
     }
 
-    const fileUrl = file.path;
-    let filePath = path.resolve(file.path);
-    filePath = filePath.replace(/\\/g, "/");
-
-
+    // Store resume file in MongoDB
     user.resume = {
-      url: fileUrl,
       filename: file.originalname,
       fileType: file.mimetype,
       size: file.size,
       uploadedAt: new Date(),
+      fileData: file.buffer, // Store binary file data in MongoDB
       analysis: { tech_skills: [], soft_skills: [], projects: [] }
     };
     await user.save();
 
+    // Create temporary file for AI service analysis
+    tempFilePath = path.join(os.tmpdir(), `resume-${userId}-${Date.now()}.pdf`);
+    fs.writeFileSync(tempFilePath, file.buffer);
 
     /*** call to python microservice ****/
-    const analysis = await aiService.analyzResume(filePath);
-    
+    const analysis = await aiService.analyzResume(tempFilePath);
+
     // Handle different response formats
     const data = analysis.data || analysis || {};
     const techSkills = data.tech_skills || [];
@@ -87,21 +81,21 @@ async function resumeKeyExtract(req, res) {
 
   } catch (error) {
     console.error("Error analyzing resume:", error);
-    
-    // Clean up uploaded file on error
-    if (uploadedFilePath && fs.existsSync(uploadedFilePath)) {
+
+    res.status(500).json({
+      success: false,
+      message: "Error analyzing resume",
+      error: error.message
+    });
+  } finally {
+    // Clean up temporary file
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
       try {
-        fs.unlinkSync(uploadedFilePath);
+        fs.unlinkSync(tempFilePath);
       } catch (unlinkError) {
-        console.error("Error deleting uploaded file:", unlinkError);
+        console.error("Error deleting temporary file:", unlinkError);
       }
     }
-    
-    res.status(500).json({ 
-      success: false, 
-      message: "Error analyzing resume",
-      error: error.message 
-    });
   }
 }
 
