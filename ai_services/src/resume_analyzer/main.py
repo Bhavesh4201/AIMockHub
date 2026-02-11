@@ -15,6 +15,7 @@ app = FastAPI()
 @app.post("/api/analyze_resume")
 async def analyze_resume(request: ResumeRequest):
     text = extract_text_from_pdf(request.file_path)
+    print(request.file_path)
     skill_json= extract_skills(text)
 
     return {"data" : skill_json}
