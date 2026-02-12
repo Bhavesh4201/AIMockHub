@@ -4,6 +4,6 @@ spacy
 pypdf
 nltk
 requests
-google-generativeai
 python-dotenv
+google-genai
      

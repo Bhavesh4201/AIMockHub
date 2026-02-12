@@ -2,6 +2,7 @@
 import os
 import json
 import google.generativeai as genai  # type: ignore
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -103,7 +104,7 @@ def extract_skills(text):
     }
 
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
         
         if response and response.text:

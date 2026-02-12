@@ -1,4 +1,4 @@
-from pypdf import PdfReader
+from pypdf import PdfReader # type: ignore
 
 def extract_text_from_pdf(pdf_path):
         print(pdf_path)
@@ -8,5 +8,3 @@ def extract_text_from_pdf(pdf_path):
         for page in reader.pages:
             text += page.extract_text()
         return text
-
-    
