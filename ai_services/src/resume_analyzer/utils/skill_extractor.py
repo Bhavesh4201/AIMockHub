@@ -12,7 +12,7 @@ if not api_key:
     print("api key not found")
 
 
-genai.configure(api_key=api_key)
+Client =  genai.Client(api_key=api_key)
 
 
 def extract_skills(text):
@@ -103,9 +103,11 @@ def extract_skills(text):
     }
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        
+        response = Client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+
         if response and response.text:
             gemini_output = response.text.strip()
             

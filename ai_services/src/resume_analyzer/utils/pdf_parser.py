@@ -1,10 +1,21 @@
-from pypdf import PdfReader # type: ignore
+import io
+from pypdf import PdfReader
 
-def extract_text_from_pdf(pdf_path):
-        print(pdf_path)
-        reader = PdfReader(pdf_path)
+def extract_text_from_pdf(pdf_input):
+    
+    try:
+        if isinstance(pdf_input, bytes):
+            # Handle binary data (e.g. from MongoDB)
+            reader = PdfReader(io.BytesIO(pdf_input))
+        else:
+            reader = PdfReader(pdf_input)
         text = ""
-        print(reader)
         for page in reader.pages:
-            text += page.extract_text()
+            # Handle cases where extraction might return None
+            text += (page.extract_text() or "") + "\n"
         return text
+    except Exception as e:
+        print(f"Error extracting text from PDF: {e}")
+        return ""
+
+    
